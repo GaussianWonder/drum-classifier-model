@@ -1,4 +1,6 @@
 import glob
+
+from utils.files.file import File
 from utils.files.sound_file import SoundFile
 
 AUDIO_PATTERNS = (
@@ -23,10 +25,10 @@ SNARES = glob.glob(SNARE_PATTERN, recursive=True)
 CRASHES = glob.glob(CRASH_PATTERN, recursive=True)
 HIHATS = glob.glob(HIHAT_PATTERN, recursive=True)
 
-SOUNDS = {
-    "kicks": [SoundFile(p) for p in KICKS],
-    "snares": [SoundFile(p) for p in SNARES],
-    "crashes": [SoundFile(p) for p in CRASHES],
-    "hihats": [SoundFile(p) for p in HIHATS],
-    "all": [SoundFile(p) for p in AUDIO_PATHS],
+FILES = {
+    "kicks": [File(p) for p in KICKS],
+    "snares": [File(p) for p in SNARES],
+    "crashes": [File(p) for p in CRASHES],
+    "hihats": [File(p) for p in HIHATS],
+    "all": [File(p) for p in AUDIO_PATHS],
 }

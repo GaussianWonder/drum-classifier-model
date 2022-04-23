@@ -5,17 +5,44 @@ import librosa.display
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from utils.files.file import File
+from utils.models.sound_file import SoundFileModel
+
+"""
+The class which is able to load the sound from and perform several calculations on
+It can be constructed from `path`, `File` or `SoundFileModel`
+"""
 
 
 class SoundFile(File):
     samples: np.ndarray = []
-    sample_rate: number = 22050
+    sample_rate: number = -1
 
-    def __init__(self, path: str, throw: bool = True):
-        super().__init__(path, throw)
+    def __init__(self, path: str):
+        super().__init__(path, True)
+
+    @classmethod
+    def from_path(cls, path: str):
+        return cls(path)
+
+    @classmethod
+    def from_model(cls, model: SoundFileModel):
+        return cls(model.path)
+
+    @classmethod
+    def from_file(cls, file: File):
+        return cls(file.path)
+
+    """
+    To load the sound automatically use the `with as` syntax
+    """
+    def load_sound(self):
         samples, sample_rate = librosa.load(self.path, sr=None)
         self.samples = samples
         self.sample_rate = sample_rate
+
+    # This is always true when using `with as` syntax
+    def is_loaded(self):
+        return self.sample_rate < 0 or not self.samples or len(self.samples) == 0
 
     def plot_name(self, plot_type: str):
         return '{type} {name} {rate}Hz'.format(type=plot_type, name=self.name, rate=self.sample_rate)
@@ -56,3 +83,10 @@ class SoundFile(File):
         librosa.display.specshow(self.db_mel_spectrogram(), sr=self.sample_rate, x_axis='time', y_axis='mel')
         fig.colorbar(mappable=plt.gci(), format='%+2.0f dB')
         return fig
+
+    def __enter__(self):
+        self.load_sound()
+        return self
+
+    def __exit__(self, exception_type, exception_value, exception_traceback):
+        print("Error thrown when dealing with SoundFile")
