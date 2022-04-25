@@ -5,7 +5,6 @@ import librosa.display
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from utils.files.file import File
-from utils.models.sound_file import SoundFileModel
 
 """
 The class which is able to load the sound from and perform several calculations on
@@ -16,6 +15,7 @@ It can be constructed from `path`, `File` or `SoundFileModel`
 class SoundFile(File):
     samples: np.ndarray = []
     sample_rate: number = -1
+    duration: number
 
     def __init__(self, path: str):
         super().__init__(path, True)
@@ -23,10 +23,6 @@ class SoundFile(File):
     @classmethod
     def from_path(cls, path: str):
         return cls(path)
-
-    @classmethod
-    def from_model(cls, model: SoundFileModel):
-        return cls(model.path)
 
     @classmethod
     def from_file(cls, file: File):
@@ -39,6 +35,7 @@ class SoundFile(File):
         samples, sample_rate = librosa.load(self.path, sr=None)
         self.samples = samples
         self.sample_rate = sample_rate
+        self.duration = librosa.get_duration(y=samples, sr=sample_rate)
 
     # This is always true when using `with as` syntax
     def is_loaded(self):

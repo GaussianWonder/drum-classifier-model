@@ -1,5 +1,7 @@
-from utils.files.file import File
-from sqlalchemy import Column, Integer, String
+from numpy import number
+
+from utils.files import SoundFile
+from sqlalchemy import Column, Integer, String, Float
 
 from utils.models import Base
 
@@ -22,18 +24,20 @@ class SoundFileModel(Base):
     sha1 = Column(String(255))
     sha256 = Column(String(255))
 
+    # Computed details
+    duration = Column(Float)
+
     # TODO relation with sound_file_result which stores paths to exported calculations
 
-    def __init__(self, path: str, md5: str, sha1: str, sha256: str):
-        self.path = path
-        self.md5 = md5
-        self.sha1 = sha1
-        self.sha256 = sha256
+    def __init__(self, file: SoundFile):
+        self.path = file.path
 
-    @classmethod
-    def from_file(cls, file: File):
         identity = file.identity()
-        return cls(file.path, identity.md5, identity.sha1, identity.sha256)
+        self.md5 = identity.md5
+        self.sha1 = identity.sha1
+        self.sha256 = identity.sha256
+
+        self.duration = file.duration
 
     def __repr__(self):
         return f"SoundFileModel(" \
