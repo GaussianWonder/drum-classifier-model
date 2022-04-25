@@ -1,7 +1,6 @@
 import glob
 
-from utils.files.file import File
-from utils.files.sound_file import SoundFile
+from files.file import File
 
 AUDIO_PATTERNS = (
     './assets/**/*.wav',

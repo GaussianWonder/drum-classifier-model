@@ -1,9 +1,7 @@
-from numpy import number
-
-from utils.files import SoundFile
+from files import SoundFile
 from sqlalchemy import Column, Integer, String, Float
 
-from utils.models import Base
+from models import Base
 
 """
 The SoundFileModel is an unloaded SoundFile. Managed with SqlAlchemy ORM.

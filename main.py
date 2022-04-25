@@ -1,6 +1,6 @@
-import utils.files as futils
-from utils.files import SoundFile
-from utils.models import init_sqlite
+import files as futils
+from files import SoundFile
+from models import init_sqlite
 
 if __name__ == '__main__':
     init_sqlite()

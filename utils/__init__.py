@@ -1,5 +1,5 @@
-from utils.files import SoundFile
-from utils.models.sound_file import SoundFileModel
+from files import SoundFile
+from models import SoundFileModel
 
 
 def model_to_sound_file(model: SoundFileModel):

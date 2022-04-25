@@ -4,7 +4,7 @@ import librosa
 import librosa.display
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from utils.files.file import File
+from files.file import File
 
 """
 The class which is able to load the sound from and perform several calculations on
