@@ -13,20 +13,27 @@ It can be constructed from `path`, `File` or `SoundFileModel`
 
 
 class SoundFile(File):
+    # Sound label
+    category: str
+
+    # Sound data
     samples: np.ndarray = []
     sample_rate: number = -1
+
+    # Sound info
     duration: number
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, category: str):
         super().__init__(path, True)
+        self.category = category
 
     @classmethod
-    def from_path(cls, path: str):
-        return cls(path)
+    def from_path(cls, path: str, category: str):
+        return cls(path, category)
 
     @classmethod
-    def from_file(cls, file: File):
-        return cls(file.path)
+    def from_file(cls, file: File, category: str):
+        return cls(file.path, category)
 
     """
     To load the sound automatically use the `with as` syntax

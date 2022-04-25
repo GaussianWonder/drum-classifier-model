@@ -1,9 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, Session
 
+engine = create_engine("sqlite:///assets/cache.db", echo=True, future=True)
+
 Base = declarative_base()
 
-engine = create_engine("sqlite:///assets/cache.db", echo=True, future=True)
+# Models (so that init_sqlite works)
+from models.sound_file import SoundFileModel
 
 
 def init_sqlite():

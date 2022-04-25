@@ -23,9 +23,7 @@ class SoundFileModel(Base):
     sha256 = Column(String(255))
 
     # Computed details
-    duration = Column(Float)
-
-    # TODO relation with sound_file_result which stores paths to exported calculations
+    duration = Column(Float(precision=32, decimal_return_scale=None))
 
     def __init__(self, file: SoundFile):
         self.path = file.path
@@ -43,4 +41,5 @@ class SoundFileModel(Base):
                f"path={self.path!r}," \
                f"md5={self.md5!r}," \
                f"sha1={self.sha1!r}," \
-               f"sha256={self.sha256!r})"
+               f"sha256={self.sha256!r}," \
+               f"duration={self.duration!r})"

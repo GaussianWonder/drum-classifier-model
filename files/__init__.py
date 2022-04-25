@@ -1,33 +1,62 @@
 import glob
+from typing import AnyStr
 
 from files.file import File
+from files.sound_file import SoundFile
 
-AUDIO_PATTERNS = (
-    './assets/**/*.wav',
-    './assets/**/*.WAV',
-    './assets/**/*.mp3',
-    './assets/**/*.ogg',
-)
+CATEGORIES = [
+    'kick',
+    'snare',
+    'crash',
+    'hihat',
+]
 
-KICK_PATTERN = './assets/kick/**/*.wav'
-SNARE_PATTERN = './assets/snare/**/*.wav'
-CRASH_PATTERN = './assets/crash/**/*.wav'
-HIHAT_PATTERN = './assets/hihat/**/*.wav'
 
-AUDIO_PATHS = []
+def category_patterns(category: str):
+    return (
+        './assets/{category}/**/*.wav'.format(category=category),
+        './assets/{category}/**/*.WAV'.format(category=category),
+        './assets/{category}/**/*.mp3'.format(category=category),
+        './assets/{category}/**/*.MP3'.format(category=category),
+        './assets/{category}/**/*.ogg'.format(category=category),
+    )
 
-for pattern in AUDIO_PATTERNS:
-    AUDIO_PATHS.extend(glob.glob(pattern, recursive=True))
 
-KICKS = glob.glob(KICK_PATTERN, recursive=True)
-SNARES = glob.glob(SNARE_PATTERN, recursive=True)
-CRASHES = glob.glob(CRASH_PATTERN, recursive=True)
-HIHATS = glob.glob(HIHAT_PATTERN, recursive=True)
+def patterns_to_paths(patterns):
+    return [
+        path
+        for pattern in patterns
+        for path in glob.glob(pattern, recursive=True)
+    ]
 
-FILES = {
-    "kicks": [File(p) for p in KICKS],
-    "snares": [File(p) for p in SNARES],
-    "crashes": [File(p) for p in CRASHES],
-    "hihats": [File(p) for p in HIHATS],
-    "all": [File(p) for p in AUDIO_PATHS],
-}
+
+def get_patterns():
+    return [
+        (category, category_patterns(category))
+        for category in CATEGORIES
+    ]
+
+
+def get_paths() -> list[tuple[str, list[str | bytes]]]:
+    return [
+        (category, patterns_to_paths(patterns))
+        for (category, patterns) in get_patterns()
+    ]
+
+
+def get_files_per_category():
+    return [
+        (category, [File(p) for p in paths])
+        for (category, paths) in get_paths()
+    ]
+
+
+def get_files():
+    return [
+        (category, fl)
+        for (category, files) in get_files_per_category()
+        for fl in files
+    ]
+
+
+ALL_AUDIO_PATTERN = category_patterns('.')
