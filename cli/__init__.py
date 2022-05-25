@@ -26,3 +26,10 @@ cli_parser.add_argument(
 def get_args():
     return cli_parser.parse_args()
 
+
+def should_rescan(opts: argparse.Namespace) -> bool:
+    return opts.rescan_assets
+
+
+def should_reset(opts: argparse.Namespace) -> bool:
+    return opts.reprocess_assets

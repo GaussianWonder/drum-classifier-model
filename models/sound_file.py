@@ -1,7 +1,10 @@
+from sqlalchemy.orm import relationship
+
 from files import SoundFile
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
 
 from models import Base
+from models.label import sound_file_association
 
 """
 The SoundFileModel is an unloaded SoundFile. Managed with SqlAlchemy ORM.
@@ -21,6 +24,14 @@ class SoundFileModel(Base):
     md5 = Column(String(255))
     sha1 = Column(String(255))
     sha256 = Column(String(255))
+
+    msl_id = Column(Integer, ForeignKey("labels.id"))
+    msl = relationship("LabelModel", back_populates="msl_for")
+
+    lsl_id = Column(Integer, ForeignKey("labels.id"))
+    lsl = relationship("LabelModel", back_populates="lsl_for")
+
+    labels = relationship("LabelModel", secondary=sound_file_association, back_populates="l_for")
 
     # Computed details
     duration = Column(Float(precision=32, decimal_return_scale=None))
@@ -42,4 +53,6 @@ class SoundFileModel(Base):
                f"md5={self.md5!r}," \
                f"sha1={self.sha1!r}," \
                f"sha256={self.sha256!r}," \
+               f"msl_id={self.msl_id!r}," \
+               f"lsl_id={self.lsl_id!r}," \
                f"duration={self.duration!r})"

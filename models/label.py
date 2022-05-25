@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy.orm import relationship
 
 from models import Base
 
@@ -37,6 +38,14 @@ eg3.wav has
 """
 
 
+sound_file_association = Table(
+    "labels_of_sound_files",
+    Base.metadata,
+    Column("label_id", ForeignKey("labels.id"), primary_key=True),
+    Column("sound_file_id", ForeignKey("sound_files.id"), primary_key=True),
+)
+
+
 class LabelModel(Base):
     __tablename__ = "labels"
 
@@ -44,6 +53,10 @@ class LabelModel(Base):
     id = Column(Integer, primary_key=True)
     # Label identifier
     name = Column(String(260))
+
+    msl_for = relationship("SoundFileModel", back_populates="msl")
+    lsl_for = relationship("SoundFileModel", back_populates="lsl")
+    l_for = relationship("SoundFileModel", secondary=sound_file_association, back_populates="labels")
 
     def __init__(self, name: str):
         self.name = name

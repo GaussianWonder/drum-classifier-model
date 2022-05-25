@@ -1,6 +1,9 @@
 import os.path
 from typing import List
 
+import torch
+import torchaudio
+
 import numpy as np
 from numpy import number
 import librosa
@@ -47,6 +50,7 @@ class SoundFile(File):
     """
     def load_sound(self):
         samples, sample_rate = librosa.load(self.path, sr=None)
+        # samples, sample_rate = torchaudio.load(self.path)
         self.samples = samples
         self.sample_rate = sample_rate
         self.duration = librosa.get_duration(y=samples, sr=sample_rate)
