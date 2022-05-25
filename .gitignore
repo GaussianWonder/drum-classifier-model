@@ -1,5 +1,7 @@
 assets/
+test_assets/
 __pycache__/
 ./**/__pycache__/
 idea/
 venv/
+classifier.pth

@@ -12,6 +12,7 @@ def most_performant_device():
 
 
 PROCESSING_DEVICE = most_performant_device()
+# PROCESSING_DEVICE = "cpu"
 
 SAMPLE_RATE: int = 44100
 N_FFT: int = 1024
