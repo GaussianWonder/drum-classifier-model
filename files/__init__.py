@@ -1,15 +1,27 @@
 import glob
-from typing import AnyStr
+import os
 
 from files.file import File
 from files.sound_file import SoundFile
 
-CATEGORIES = [
-    'kick',
-    'snare',
-    'crash',
-    'hihat',
-]
+
+# Asset Categories are equivalent to MSL in SoundFileModels
+def get_asset_categories() -> list[str]:
+    categories = []
+    for f_name in os.listdir('./assets'):
+        maybeDir = os.path.join('./assets', f_name)
+        if os.path.isdir(maybeDir):
+            categories.append(f_name)
+    return categories
+
+
+CATEGORIES = get_asset_categories()
+# CATEGORIES = [
+#     'kick',
+#     'snare',
+#     'crash',
+#     'hihat',
+# ]
 
 
 def category_patterns(category: str):
