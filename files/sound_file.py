@@ -1,3 +1,6 @@
+import os.path
+from typing import List
+
 import numpy as np
 from numpy import number
 import librosa
@@ -34,6 +37,10 @@ class SoundFile(File):
     @classmethod
     def from_file(cls, file: File, category: str):
         return cls(file.path, category)
+
+    def get_path_labels(self) -> List[str]:
+        relpath = os.path.relpath(self.path, "./assets")
+        return os.path.dirname(relpath).split('/')
 
     """
     To load the sound automatically use the `with as` syntax
@@ -93,4 +100,8 @@ class SoundFile(File):
         return self
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
-        print("Error thrown when dealing with SoundFile")
+        if exception_type is not None or exception_type is not None:
+            print("Error thrown when dealing with SoundFile")
+            print(exception_type)
+            print(exception_value)
+            print(exception_traceback)

@@ -7,6 +7,7 @@ Base = declarative_base()
 
 # Models (so that init_sqlite works)
 from models.sound_file import SoundFileModel
+from models.label import LabelModel
 
 
 def init_sqlite():
