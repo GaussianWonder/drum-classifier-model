@@ -1,73 +1,49 @@
-import librosa
+import random
+
 import torch
 import torchaudio
 from torch import nn
 
-import matplotlib.pyplot as plt
-
 import cli
 import prefferences
-from files import get_test_files, SoundFile, CATEGORIES
+import utils.plotting
+from files import SoundFile, CATEGORIES, get_files_per_category
 from models import init_sqlite
 
 from dataset import AudioAssets
 from network.convolutional import CNNetwork
+from network.test import test
 from network.train import create_data_loader, BATCH_SIZE, train, LEARNING_RATE, EPOCHS
-
-opts = cli.get_args()
 
 print('using torch: ' + torch.__version__)
 print('using torchaudio: ' + torchaudio.__version__)
 
 
-def plot_spectrogram(spec, title=None, ylabel='freq_bin', aspect='auto', xmax=None):
-    fig, axs = plt.subplots(1, 1)
-    axs.set_title(title or 'Spectrogram (db)')
-    axs.set_ylabel(ylabel)
-    axs.set_xlabel('frame')
-    im = axs.imshow(librosa.power_to_db(spec), origin='lower', aspect=aspect)
-    if xmax:
-        axs.set_xlim((0, xmax))
-    fig.colorbar(im, ax=axs)
-    plt.show(block=False)
-
-
-def predict(model, input_data, target, class_mapping):
-    model.eval()
-    with torch.no_grad():
-        predictions = model(input_data)
-        # Tensor (1, CATEGORIES) -> [ [0.1, 0.01, ..., 0.6] ]
-        predicted_index = predictions[0].argmax(0)
-        predicted = class_mapping[predicted_index]
-        expected = class_mapping[target]
-    return predicted, expected
-
-
 if __name__ == '__main__':
-    executed_from_cli: bool = False
-
     init_sqlite()
 
-    if cli.should_reset(opts):
+    executed_from_cli: bool = False
+
+    if cli.should_reset():
         # Delete everything and Rescan
         executed_from_cli = True
 
-    if cli.should_rescan(opts):
+    if cli.should_rescan():
         # Rescan
         executed_from_cli = True
 
-    if cli.should_train(opts):
+    if cli.should_train():
         executed_from_cli = True
 
-        audioDataset = AudioAssets("./assets")
+        audio_dataset = AudioAssets("./assets")
 
         cnn = CNNetwork().to(prefferences.PROCESSING_DEVICE)
         print(cnn)
 
-        # Train model
+        # Train the Model
         train(
             model=cnn,
-            data_loader=create_data_loader(audioDataset, BATCH_SIZE),
+            data_loader=create_data_loader(audio_dataset, BATCH_SIZE),
             loss_function=nn.CrossEntropyLoss(),
             optimizer=torch.optim.Adam(
                 cnn.parameters(),
@@ -78,18 +54,43 @@ if __name__ == '__main__':
         )
 
         # Save Model
-        export_path = cli.model_export_path(opts)
+        export_path = cli.model_export_path()
         torch.save(cnn.state_dict(), export_path)
         print(f"Model saved at {export_path}")
 
-    if not executed_from_cli:
-        audioDataset = AudioAssets("./test_assets")
+    if cli.should_test():
+        executed_from_cli = True
+
+        audio_dataset = AudioAssets(cli.validation_path())
+
         cnn = CNNetwork().to(prefferences.PROCESSING_DEVICE)
-        cnn.load_state_dict(torch.load("classifier.pth"))
+        cnn.load_state_dict(torch.load(cli.model_import_path()))
 
-        for input_data, target in audioDataset:
-            input_data.unsqueeze_(0)
+        test(cnn, audio_dataset, CATEGORIES)
 
-            predicted, expected = predict(cnn, input_data, target, CATEGORIES)
+    if not executed_from_cli:
+        prefferences.force_processing_device_to("cpu")
 
-            print(f"Predicted {predicted}, expected: {expected}")
+        # Do random plotting from each category
+        for category, files in get_files_per_category():
+            rand_index = random.randint(0, len(files) - 1)
+            with SoundFile.from_file(files[rand_index]) as sound:
+                plot_name = f"{sound.name} {category} - {sound.path}"
+
+                # utils.plotting.plot_waveform(
+                #     waveform=sound.samples,
+                #     sample_rate=sound.sample_rate,
+                #     title=f"{plot_name} Waveform",
+                # )
+
+                utils.plotting.plot_spectrogram(
+                    sound.mel_spectrogram()[0],
+                    title=f"{plot_name} mel spectrogram",
+                    ylabel="mel_freq",
+                )
+
+                utils.plotting.plot_spectrogram(
+                    sound.mfcc_spectrogram()[0],
+                    title=f"{plot_name} mfcc spectrogram",
+                    ylabel="freq_bin"
+                )

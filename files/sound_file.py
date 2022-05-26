@@ -1,9 +1,7 @@
-import torch
 import torchaudio
 
 import numpy as np
 from numpy import number
-from torchaudio.transforms import MelSpectrogram
 
 import prefferences
 from files.file import File
@@ -60,7 +58,10 @@ class SoundFile(File):
         return not(self.sample_rate < 0 or self.duration < 0 or not self.samples or len(self.samples) == 0)
 
     def mel_spectrogram(self):
-        return prefferences.MEL_SPEC_TRANSFORM(self.samples)
+        return prefferences.mel_spec_transform()(self.samples)
+
+    def mfcc_spectrogram(self):
+        return prefferences.mfcc_spec_transform()(self.samples)
 
     def __enter__(self):
         self.load_sound()

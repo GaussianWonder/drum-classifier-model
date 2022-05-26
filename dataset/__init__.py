@@ -17,7 +17,6 @@ class AudioAssets(Dataset):
     def __len__(self):
         # TODO extract from sqlite
         # return number_of_sound_files()
-        print(self.files)
         return len(self.files)
 
     def __getitem__(self, index):

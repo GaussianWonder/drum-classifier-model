@@ -1,5 +1,5 @@
 import torch
-from torchaudio.transforms import MelSpectrogram, Resample
+from torchaudio.transforms import MelSpectrogram, Resample, MFCC
 
 
 def most_performant_device():
@@ -12,19 +12,46 @@ def most_performant_device():
 
 
 PROCESSING_DEVICE = most_performant_device()
-# PROCESSING_DEVICE = "cpu"
 
+
+def force_processing_device_to(device: str):
+    global PROCESSING_DEVICE
+    PROCESSING_DEVICE = device
+
+
+# SAMPLE_RATE: int = 44100
+# N_FFT: int = 1024
+# HOP_LENGTH: int = N_FFT // 2
+# N_MELS: int = 64
+# N_MFCC: int = 64
 SAMPLE_RATE: int = 44100
 N_FFT: int = 1024
 HOP_LENGTH: int = N_FFT // 2
-N_MELS: int = 64
+N_MELS: int = 256
+N_MFCC: int = 256
 
-MEL_SPEC_TRANSFORM: MelSpectrogram = MelSpectrogram(
-    sample_rate=SAMPLE_RATE,
-    n_fft=N_FFT,
-    hop_length=HOP_LENGTH,
-    n_mels=N_MELS,
-).to(PROCESSING_DEVICE)
+
+def mel_spec_transform() -> MelSpectrogram:
+    return MelSpectrogram(
+        sample_rate=SAMPLE_RATE,
+        n_fft=N_FFT,
+        hop_length=HOP_LENGTH,
+        n_mels=N_MELS,
+    ).to(PROCESSING_DEVICE)
+
+
+def mfcc_spec_transform() -> MFCC:
+    return MFCC(
+        sample_rate=SAMPLE_RATE,
+        n_mfcc=N_MFCC,
+        melkwargs={
+          'n_fft': N_FFT,
+          'n_mels': N_MELS,
+          'hop_length': HOP_LENGTH,
+          'mel_scale': 'htk',
+        }
+    ).to(PROCESSING_DEVICE)
+
 
 # duration in seconds
 MAX_DURATION: float = 0.7
@@ -64,4 +91,3 @@ def uniform_transformation(samples, sample_rate):
     m_samples = mono_if_stereo(r_samples)
     u_samples = adjust_to_duration(m_samples)
     return u_samples, r_sr
-
